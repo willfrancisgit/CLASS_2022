@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
  ---
 title: "R-eading_installing_files_for_R"
 author: "JR"
@@ -347,8 +352,8 @@ hist(peaks_per_dbp$total_peak_length)
 ```{r mutate if else statement}
 
 peaks_per_dbp <- peaks_per_dbp %>% 
-  mutate(genome_coverage_size = ifelse(total_peak_length < 1, "small",
-                          ifelse(total_peak_length < 30, "medium", "large")))
+  mutate(genome_coverage_size = ifelse(tpl_m < 1, "small",
+                          ifelse(tpl_m < 30, "medium", "large")))
 
 # that is really handy for changing stuff around in a data frame -- 
 # note that if else moves forward for greater that 30 and if true then returns large
