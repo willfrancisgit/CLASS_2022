@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 ### 2022 University of Colorado Boulder Biochemsitry 5631: Computational and statistical analysis of the human genome.
@@ -17,3 +18,6 @@ CLass Slack Channel: bchm5631.slack.com
 /Shares/rinn_class/data/CLASS_2021
 
 /Scratch/IDENTIKEY
+=======
+# CLASS_2022
+>>>>>>> 1af5d1da1155e444cec50161659f31e92764772e
