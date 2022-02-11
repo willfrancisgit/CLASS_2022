@@ -180,7 +180,7 @@ cd analysis
 
 mkdir results
 mkdir work
-mdir figures # if there are no figures this isn't needed.
+mkdir figures # if there are no figures this isn't needed.
 
 ```
 
