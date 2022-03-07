@@ -119,7 +119,6 @@ ENCSR613TDP,1,../../fastq/ENCFF002ECU.fastq.gz,,,
 ENCSR621FPD,1,../../fastq/ENCFF565IOH.fastq.gz,,,
 ENCSR690IYP,1,../../fastq/ENCFF513OBT.fastq.gz,,,
 ENCSR693GOR,1,../../fastq/ENCFF968ICP.fastq.gz,,,
-ENCSR730QNM,1,../../fastq/ENCFF344SHX.fastq.gz,,,
 ENCSR945JOR,1,../../fastq/ENCFF074CLV.fastq.gz,,,
 ARID3A,2,../../fastq/ENCFF000XOS.fastq.gz,,ARID3A,ENCSR000EEN
 ARID3A,1,../../fastq/ENCFF000XOU.fastq.gz,,ARID3A,ENCSR000EEN
