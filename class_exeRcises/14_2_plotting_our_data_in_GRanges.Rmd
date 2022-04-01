@@ -11,9 +11,9 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(GenomicRanges)
-source("../../../util/intersect_functions.R")
-source("../../../util/plotting_functions.R")
-source("../../../util/_setup.R")
+source("~/CLASS/wifr3145/CLASS_2022/util/intersect_functions.R")
+source("~/CLASS/wifr3145/CLASS_2022/util/plotting_functions.R")
+source("~/CLASS/wifr3145/CLASS_2022/util/_setup.R")
 library(Gviz)
 library(ggpubr)
 library(ggplot2)
@@ -24,18 +24,27 @@ Alright time to start digging into the data for new results !!
 We have made a consensus peak file for each DBP and 
 Moreover, we have a data frame of a bunch of peak overlap features for each DBP.
 
-# Loading in consensus peaks
+# Loading in filtered consensus peaks
 
-First let's load in the consensu peak files (this is something we always have to do)
+First let's load in the consensus peak files (this is something we always have to do)
 
 ```{r loading consensus peaks}
 
 # read in file list to lapply import below
 
-fl <- list.files("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_2022/class_exeRcises/analysis/11_consensus_peaks/filtered_consensus_peaks/", full.names=TRUE)
+# first create a file list of filtered consensus peaks
+fl <- list.files("/scratch/Shares/rinnclass/CLASS_2022/data/filtered_consensus_peaks", 
+                                             pattern = "*.bed",
+                                             full.names = TRUE)
 
-# loading each consensus peak bed file into a list of GRanges
-filtered_consensus_peaks <- lapply(fl, rtracklayer::import, format = "bed")
+
+# # lappy to import each file in file list 
+filtered_consensus_peaks <- lapply(fl, rtracklayer::import)
+
+# fl <- list.files("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_2022/class_exeRcises/analysis/11_consensus_peaks/filtered_consensus_peaks/", full.names=TRUE)
+# 
+# # loading each consensus peak bed file into a list of GRanges
+# filtered_consensus_peaks <- lapply(fl, rtracklayer::import, format = "bed")
 
 
 # Let's take a look since this is an important first step.
@@ -66,20 +75,12 @@ Let's load in our num_peaks_df and decide if we want to filter?
 
 # loading in our previous analyses:
 
-num_peaks_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_2022/class_exeRcises/analysis/12_peak_features/num_peaks_df.csv")
+num_peaks_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/wifr3145/CLASS_2022/class_exeRcises/analysis/12_peak_features/num_peaks_df.csv")
 
+# num_peaks_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_2022/class_exeRcises/analysis/12_peak_features/num_peaks_df.csv")
 
-# filtered_consensus_peaks <- consensus_peaks[sapply(consensus_peaks, length) > num_peaks_threshold]
-
-# Could also filter like this:
-
-# filtered_consensus_peaks <- consensus_peaks[dbps_with_sufficient_peaks]
-
-# we can record the result of what percentile this cutoff is at :
-# threshold_percentile <- round(ecdf(num_peaks_df$num_peaks)(num_peaks_threshold)*100,1)
 
 ```
-
 
 # Let's plot some data and see what we might learn
 Ok enough set up let's dig in with making some plots!
@@ -105,8 +106,9 @@ Ok enough set up let's dig in with making some plots!
 
 ggplot(num_peaks_df, aes(x = num_peaks, y = total_peak_length, label = dbp)) +
   geom_point() + 
-  geom_smooth(method = "lm", se = FALSE, color = "black", lty = 2,
+  geom_smooth(method = "lm", se = TRUE, color = "black", lty = 2,
               formula = 'y ~ x') +
+  # after this line is just formatting figure - above is "functional"
   geom_text() +
   ylab("BP covered") +
   xlab("Number of peaks") +
@@ -124,21 +126,18 @@ Let's did in a bit deeper and see how coverage on promoters.
 ```{r number of DBPS on promoters}
 # now let's plot x as num_peaks and y num overlapping promoters.
 
-
 ggplot(num_peaks_df,
        aes(x = num_peaks, y = peaks_overlapping_promoters)) +
-  
-
+  # just a resource for figure editing
   xlab("Peaks per DBP") +
   ylab("Number of peaks overlapping promoters") +
   ggtitle("Relationship Between Number of DBP Peaks and Promoter Overlaps")+
   geom_point() +
+  
+  # back to important statistical aspects
   geom_abline(slope = 1, linetype="dashed") +
   geom_smooth(method = "lm", se=F, formula = 'y ~ x',
-              color = "#a8404c") +
-  stat_regline_equation(label.x = 35000, label.y = 18000) +
-  ylim(0,60100) +
-  xlim(0,60100)
+              color = "#a8404c")
 
 ggsave("figures/3_peak_num_vs_promoter_coverage.pdf")
 
@@ -162,16 +161,13 @@ ggplot(num_peaks_df,
   geom_point() +
   geom_abline(slope = 1, linetype="dashed") +
   geom_smooth(method = "lm", se=F, formula = 'y ~ x',
-              color = "#a8404c") +
-  stat_regline_equation(label.x = 35000, label.y = 18000) +
-  ylim(0,60100) +
-  xlim(0,60100)
+              color = "#a8404c") 
 
 # Interesting result !! Gene bodies explain almost all the places of binding in 
 # the genome! Where as promoters had a non linear asymptope after a certain number 
 # of peaks. VERY COOL and surprising. There are billions of other possible binding sites!
 
-ggsave("/figures/4_peak_num_vs_gene_body_coverage.pdf")
+ggsave("figures/4_peak_num_vs_gene_body_coverage.pdf")
 ```
 
 Ok so we have started generating results in this handy num_peaks_df. 
@@ -184,7 +180,9 @@ Let's load it in and do some analyses -- THIS ONE IS REALLY COOL :).
 
 # First read the file into an object
 
-peak_occurence_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_2022/class_exeRcises/analysis/12_peak_features/peak_occurence_dataframe.csv")
+peak_occurence_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/wifr3145/CLASS_2022/class_exeRcises/analysis/12_peak_features/peak_occurence_dataframe.csv")
+
+# peak_occurence_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_2022/class_exeRcises/analysis/12_peak_features/peak_occurence_dataframe.csv")
 
 # let's have a look. This is a summary of the peak occurence df.
 # we did colsums to find how many binding events there are at each promoter
@@ -192,9 +190,9 @@ peak_occurence_df <- read.csv("/scratch/Shares/rinnclass/CLASS_2022/JR/CLASS_202
 
 ```
 
-
 Let's make a density plot of num DBPs bound per promoter
 # Density plot of binding events
+
 ```{r density plot of DBP localization events}
 
 # Since we are making a density plot we only need the X axis.
@@ -231,7 +229,7 @@ unbound_promoters <- peak_occurence_df %>%
 
 # how many are there?
 nrow(unbound_promoters)
-# so there are only a few 6,747 promoters that don't have binding evetns (~10%)
+# so there are only a few 6,720 promoters that don't have binding evetns (~10%)
 
 #  let's put it in a folder called results. We will always use this folder structure
 write_csv(unbound_promoters, "results/unbound_promoters.csv")
@@ -262,8 +260,8 @@ This is required to make two plots in one :)
 ggplot(num_peaks_df, aes(x = num_peaks)) +
   geom_point(aes(y = peaks_overlapping_lncrna_promoters), color = "red") +
   geom_point(aes(y = peaks_overlapping_mrna_promoters), color = "black") +
-  stat_regline_equation(aes(y = peaks_overlapping_lncrna_promoters), color = "red") +
-  stat_regline_equation(aes(y = peaks_overlapping_mrna_promoters), color = "black", label.y = 20000) +
+  #stat_regline_equation(aes(y = peaks_overlapping_lncrna_promoters), color = "red") +
+  #stat_regline_equation(aes(y = peaks_overlapping_mrna_promoters), color = "black", label.y = 20000) +
   geom_smooth(aes(y = peaks_overlapping_lncrna_promoters), method = "lm", se = FALSE, formula = "y ~ x") +
   geom_smooth(aes(y = peaks_overlapping_mrna_promoters), method = "lm", se = FALSE, formula = "y ~ x")
 
@@ -273,11 +271,12 @@ ggsave("figures/lncRNA-mRNA-promoter_binding.pdf")
 # Both follow a fairly linear trend except mRNA may have saturate quicker.
 
 
-# This is just a fancier version of the same thing -- not mutate to clean up names
+# This is just a fancier version of the same thing -- note mutate to clean up names
 # this first part is manipulating the num peaks df with pivot longer
 num_peaks_dfl <- num_peaks_df %>%
   dplyr::select(-peaks_overlapping_promoters) %>%
   # selecting these to cols to pivot longer
+  # We will discuss pivot longer in the next class (BUT IF YOUR INTERESTED ASK NOW IT'S WORTH IT!!)
   pivot_longer(cols = peaks_overlapping_lncrna_promoters:peaks_overlapping_mrna_promoters,
                names_to = "gene_type",
                values_to = "peaks_overlapping_promoters") %>%
@@ -289,7 +288,7 @@ ggplot(num_peaks_dfl, aes(x = num_peaks, y = peaks_overlapping_promoters,
          geom_point() +
          geom_abline(slope = 1, linetype="dashed") +
   geom_smooth(method = "lm", se = FALSE, formula = "y ~ x") +
-  stat_regline_equation() +
+  #stat_regline_equation() +
   scale_color_manual(values = c("#a8404c", "#424242"))+
   xlab("Peaks per DBP") +
   ylab("Peaks Overlapping Promoters") +
